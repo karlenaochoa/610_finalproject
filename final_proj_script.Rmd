@@ -1,0 +1,148 @@
+---
+title: "final_proj_script"
+author: "Karlena Ochoa"
+date: "February 24, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r load libraries }
+
+library(tidyverse)
+library(janitor)
+library(rio)
+library(magrittr)
+library(here)
+library(knitr)
+library(stats)
+```
+
+```{r import data}
+
+df <- import(here("data", "BREIF_Data_100p_final_proj.csv"),
+             na.string = "999")
+             
+df2 <- import(here("data", "data_trust_final_proj.csv"),
+              na.string = "999")
+
+#join data and select variables of interest
+
+data <- left_join(df2, df, by = "subid") %>% 
+  select(1, 4:7, 12:23, 25:28, 33:44, 56:73, 81:143)
+
+# turn 999 into nas
+          
+```
+
+
+For the first one, I'd reconsider the colors, increase font size, and add some annotations (which we'll talk about today).
+
+```{r viz 1}
+
+#mutate variables to factors and label, maker average trust variable 
+v1 <- data %>% 
+mutate(condition = as.factor(ifelse(condition == 1, "first-hand",
+                                      "second-hand"))) %>%
+  mutate(gender = as.factor(ifelse(gender == 1, "male", "female"))) %>%
+  group_by(subid) %>%
+  mutate(average_trust = mean(total_trust))
+
+summary_p <- v1 %>%
+  group_by(agegroup.x, condition) %>%
+  summarise(n = n(),
+            average_trust = mean(total_trust),
+            sd_average_trust = sd(total_trust),
+            se_average_trust = sd_average_trust / (sqrt(n)))
+
+plot0 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+  geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
+           alpha = .7) +
+    labs(title= "Children's Selective Trust of Helpful over Tricky informant", 
+       subtitle = "Separated by Condition and Age group", 
+       x = "Age Group", y = "Average Trust Score" ) +
+     geom_errorbar(aes(ymin = average_trust - 1.96*se_average_trust, 
+                       ymax = average_trust + 1.96*se_average_trust,
+                       group = condition),
+                  width=.2,                    
+                  position = position_dodge(width = 0.9)) +
+  theme_minimal()
+
+#improve plot by changing colors, make text bigger 
+
+plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+  geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
+           alpha = .6) +
+  ylim(c(0,6)) +
+    labs(title= "Children's Selective Trust of Helpful over Tricky informant", 
+       subtitle = "Separated by Condition and Age group", 
+       x = "Age Group", y = "Average Trust Score" ) +
+     geom_errorbar(aes(ymin = average_trust - 1.96*se_average_trust, 
+                       ymax = average_trust + 1.96*se_average_trust,
+                       group = condition),
+                  width=.2,                    
+                  position = position_dodge(width = 0.9)) +
+  theme_classic() +
+  scale_fill_viridis_d(option = "cividis")
+
+plot1 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=16),
+           plot.subtitle = element_text(size=14))
+  
+
+
+#add annotations for group averages
+
+plot2 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+  geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
+           alpha = .5) +
+  ylim(c(0,6)) +
+    labs(title= "Children's Selective Trust of Helpful over Tricky informant", 
+       subtitle = "Separated by Condition and Age group", 
+       x = "Age Group", y = "Average Trust Score" ) +
+     geom_errorbar(aes(ymin = average_trust - 1.96*se_average_trust, 
+                       ymax = average_trust + 1.96*se_average_trust,
+                       group = condition),
+                  width=.1, 
+                  alpha = .5,
+                  color = "gray40",
+                  position = position_dodge(width = 0.9)) +
+  annotate("text", label = "3.43", x = .79, y = 3.43, fontface = "bold", size = 4) +
+  annotate("text", label = "3.32", x = 1.2, y = 3.32, fontface = "bold", size = 4) +
+  annotate("text", label = "4.71", x = 1.8, y = 4.71, fontface = "bold", size = 4) +
+  annotate("text", label = "3.96", x = 2.2, y = 3.96, fontface = "bold", size = 4) +
+  theme_classic() +
+  scale_fill_viridis_d(option = "cividis")
+
+
+plot2 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=16),
+           plot.subtitle = element_text(size=14))
+
+```
+
+thoughts for plot 2
+
+Second plot sounds good, but keep in mind the same sort of things I mentioned above.
+
+```{r}
+
+```
+
+
+
+thoughts for plot 3
+
+```{r}
+
+```
+
+
