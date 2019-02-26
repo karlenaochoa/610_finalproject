@@ -1,5 +1,5 @@
 ---
-title: "final_proj_script"
+title: "Data Vizualizations Portfolio"
 author: "Karlena Ochoa"
 date: "February 24, 2019"
 output: html_document
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ```{r load libraries }
-
+ 
 library(tidyverse)
 library(janitor)
 library(rio)
@@ -18,7 +18,9 @@ library(magrittr)
 library(here)
 library(knitr)
 library(stats)
+library(gghighlight)
 ```
+
 
 ```{r import data}
 
@@ -28,21 +30,22 @@ df <- import(here("data", "BREIF_Data_100p_final_proj.csv"),
 df2 <- import(here("data", "data_trust_final_proj.csv"),
               na.string = "999")
 
+# turn 999 into nas
+
 #join data and select variables of interest
 
 data <- left_join(df2, df, by = "subid") %>% 
   select(1, 4:7, 12:23, 25:28, 33:44, 56:73, 81:143)
-
-# turn 999 into nas
           
 ```
 
 
-For the first one, I'd reconsider the colors, increase font size, and add some annotations (which we'll talk about today).
+Viz 1: Aimed at general community!
 
+Message: only 4-year-olds trust the reliable informant over the unreliable informant, even when 3-year-olds receive first-hand information they are equally choosing the reliable (helpful) and unreliable informant (tricky) in a sticker-finding task. 
 ```{r viz 1}
 
-#mutate variables to factors and label, maker average trust variable 
+#mutate variables to factors and label, make average trust variable
 v1 <- data %>% 
 mutate(condition = as.factor(ifelse(condition == 1, "first-hand",
                                       "second-hand"))) %>%
@@ -96,14 +99,14 @@ plot1 + theme(axis.title.x = element_text(size=14),
   
 
 
-#add annotations for group averages
+#add annotations for group averages, make the title for the general public
 
 plot2 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
   geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
            alpha = .5) +
   ylim(c(0,6)) +
-    labs(title= "Children's Selective Trust of Helpful over Tricky informant", 
-       subtitle = "Separated by Condition and Age group", 
+    labs(title= "Only 4-year-olds trust the more reliable informant!", 
+       subtitle = "", 
        x = "Age Group", y = "Average Trust Score" ) +
      geom_errorbar(aes(ymin = average_trust - 1.96*se_average_trust, 
                        ymax = average_trust + 1.96*se_average_trust,
@@ -127,12 +130,44 @@ plot2 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=16),
            plot.subtitle = element_text(size=14))
 
+# going to try to take off error bars so it's easier to see means. I tried putting them above the error bars but it looks odd. Let me know if it's not a good idea. 
+
+
+plot3 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+  geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
+           alpha = .5) +
+  ylim(c(0,6)) +
+    labs(title= "Only 4-year-olds trust the more reliable informant!", 
+       subtitle = "Children's trust scores in a sticker-finding game", 
+       x = "Age Group", y = "Average Trust Score of Reliable Informant" ) +
+  annotate("text", label = "3.43", x = .79, y = 3.61, size = 6) +
+  annotate("text", label = "3.32", x = 1.2, y = 3.5, size = 6) +
+  annotate("text", label = "4.71", x = 1.8, y = 4.9, size = 6) +
+  annotate("text", label = "3.96", x = 2.2, y = 4.1, size = 6) +
+  theme_classic() +
+  scale_fill_viridis_d(option = "cividis")
+
+
+plot3 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=18),
+           plot.subtitle = element_text(size=14))
+#feedback requests:
+
+# I would love feedback on the colors. I am trying to find some that are colorblind friendly but I think they all look ugly.
+
+# Daniel suggested adding annotaions, does it help to have the means there? It's look awkward to me because of the error bars, but seems odd to take them off. 
+
+# Is text big enough? Would this be understood by a general audience?
+
 ```
 
-thoughts for plot 2
 
-Second plot sounds good, but keep in mind the same sort of things I mentioned above.
+Viz 2 - aimed at scientific community
 
+Message: it seems that there is a positive relationship between four-year-olds, who received first-hand information regarding informants' traits, performance on the training trials and trust of more reliable informant. This relationship does not seem evident for 3-year-olds. 
 ```{r viz 2, fig.width = 5, fig.height = 6}
 df3 <- df2 %>% 
   filter(condition == "1") 
@@ -147,7 +182,7 @@ ggplot(df3, aes(trainingtotal, total_trust)) +
   geom_point(position = "jitter") +
   geom_smooth(method = "lm", fullrange = TRUE) +
   theme_minimal() +
-  labs(title= "Children's Performance on Training Trials Related to Total Trust of Reliable Informant", 
+  labs(title= "Children's Performance on Training Trials Related \nto Total Trust of Reliable Informant", 
        subtitle = "", 
        x = "Training Total", y = "Trust Score" )
 
@@ -161,7 +196,7 @@ plot <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.
                      breaks = c("3", "4"),
                      labels = c("3-year-olds", "4-year-olds")) +
   theme_minimal() +
-  labs(title= "Children's Performance on Training Trials Related to Total Trust of Reliable Informant", 
+  labs(title= "Children's Performance on Training Trials Related to Total \nTrust of Reliable Informant", 
        subtitle = "Relationship separated by age", 
        x = "Training Total",
        y = "Trust Score" ) +
@@ -176,30 +211,74 @@ plot + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14))
   
-#coord_fixed()
-# find a way to make regression lines extend to the limits, change colors, consider not using coord equal, find colors that are color blind safe and not ugly like the viridis ones 
-
+#change colors, consider not using coord equal, find colors that are color blind safe and not ugly like the viridis ones 
 
 ```
 
+Viz 3 - aimed at scientific community
 
-
-thoughts for plot 3
-
+message: it seems that parents of 4-year-olds more accurately report on their 4-year-olds executive function (EF) performance. Parent reports of 3-year-olds EF seem to overestimate their performance. 
 ```{r viz 3}
+
 #make data into long format
 df4 <- data %>%
   gather(BRIEF_item, BRIEF_response, "BRIEF1":"BRIEF63") %>%
   mutate(BRIEF_item = as.factor(parse_number(BRIEF_item))) %>%
   mutate(BRIEF_response = as.numeric(BRIEF_response)) %>% 
-  group_by(subid) %>% #come back to this part 
+  group_by(subid) %>%  
   mutate(child_EF = ((flanker_rs + dccs_rs)/2)) %>% 
   mutate(parent_EF = sum(BRIEF_response)) %>% 
   filter(!is.na(parent_EF)) %>% 
-  filter(!is.na(child_EF))
+  filter(!is.na(child_EF)) %>% 
+  mutate(parent_EF_RS = (63 - parent_EF)) %>% 
+  mutate(agegroup.x = recode(agegroup.x,
+                              "3" = "3-year-olds",
+                              "4" = "4-year-olds")) 
 
-ggplot(df4, aes())
+#checking for outliers for each variable 
 
+boxplot(df4$child_EF)
+boxplot(df4$parent_EF_RS)
+ggplot(df4, aes(child_EF, parent_EF_RS, group = agegroup.x)) + 
+  geom_boxplot()
+
+#my plan was to highlight outliers in the scatterplot, as you can see there are no outliers. may do something else! Suggestions to make it look fancier?
+
+plot4 <- ggplot(df4, aes(child_EF, parent_EF_RS)) +
+  geom_point(size = 1.5, color = "gray40") +
+  geom_smooth(method = "lm") +
+  facet_wrap(~agegroup.x) +
+  theme_bw() + 
+  labs(title= "Children's Executive Function Score in Relation to Parent Report \nof Executive Function",
+       subtitle = "Relationship separated by age", 
+       x = "Children's Executive Function Score",
+       y = "Parent-Report of Executive Function" )
+
+plot4 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=15),
+           plot.subtitle = element_text(size=14),
+           strip.text.x = element_text(size = 12))
+
+
+```
+
+viz 4: aimed at scientific community 
+
+message: children's ability to trust a reliable informant over an unreliable informant seems to increase with age. 
+```{r}
+
+ggplot(df2, aes(exactage.x, total_trust)) +
+  geom_point() +
+  gghighlight(total_trust > 1) +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  labs(title= "...",
+       subtitle = "...", 
+       x = "Age in Months",
+       y = "Total Trust Score" )
 
 ```
 
