@@ -133,7 +133,52 @@ thoughts for plot 2
 
 Second plot sounds good, but keep in mind the same sort of things I mentioned above.
 
-```{r}
+```{r viz 2, fig.width = 5, fig.height = 6}
+df3 <- df2 %>% 
+  filter(condition == "1") 
+
+#Let's make this sad scatter plot better
+
+ggplot(df3, aes(trainingtotal, total_trust)) +
+  geom_point()
+
+#theme minimal added jitter for overlapping points 
+ggplot(df3, aes(trainingtotal, total_trust)) +
+  geom_point(position = "jitter") +
+  geom_smooth(method = "lm", fullrange = TRUE) +
+  theme_minimal() +
+  labs(title= "Children's Performance on Training Trials Related to Total Trust of Reliable Informant", 
+       subtitle = "", 
+       x = "Training Total", y = "Trust Score" )
+
+#color dots and regression line by age group 
+plot <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.x))) +
+  geom_point(size = 2) +
+  geom_jitter(position = position_jitter(height = .6, width = 0)) +
+  geom_smooth(method = "lm", fullrange = TRUE, se = FALSE) +
+  scale_color_brewer(palette = "Accent",
+                     name = "Age Group",
+                     breaks = c("3", "4"),
+                     labels = c("3-year-olds", "4-year-olds")) +
+  theme_minimal() +
+  labs(title= "Children's Performance on Training Trials Related to Total Trust of Reliable Informant", 
+       subtitle = "Relationship separated by age", 
+       x = "Training Total",
+       y = "Trust Score" ) +
+  annotate("text", label = "3-year-olds", x = 2.8, y = 3.1, size = 4.5) +
+  annotate("text", label = "4-year-olds", x = 2.8, y = 5.1, size = 4.5) +
+  guides(color = "none")
+
+plot + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=15),
+           plot.subtitle = element_text(size=14))
+  
+#coord_fixed()
+# find a way to make regression lines extend to the limits, change colors, consider not using coord equal, find colors that are color blind safe and not ugly like the viridis ones 
+
 
 ```
 
@@ -141,7 +186,20 @@ Second plot sounds good, but keep in mind the same sort of things I mentioned ab
 
 thoughts for plot 3
 
-```{r}
+```{r viz 3}
+#make data into long format
+df4 <- data %>%
+  gather(BRIEF_item, BRIEF_response, "BRIEF1":"BRIEF63") %>%
+  mutate(BRIEF_item = as.factor(parse_number(BRIEF_item))) %>%
+  mutate(BRIEF_response = as.numeric(BRIEF_response)) %>% 
+  group_by(subid) %>% #come back to this part 
+  mutate(child_EF = ((flanker_rs + dccs_rs)/2)) %>% 
+  mutate(parent_EF = sum(BRIEF_response)) %>% 
+  filter(!is.na(parent_EF)) %>% 
+  filter(!is.na(child_EF))
+
+ggplot(df4, aes())
+
 
 ```
 
