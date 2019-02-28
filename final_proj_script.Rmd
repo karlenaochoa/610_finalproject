@@ -19,6 +19,11 @@ library(here)
 library(knitr)
 library(stats)
 library(gghighlight)
+#devtools::install_github("yixuan/showtext")
+library(showtext)
+library(ggthemes)
+library(grid)
+
 ```
 
 
@@ -269,16 +274,32 @@ viz 4: aimed at scientific community
 
 message: children's ability to trust a reliable informant over an unreliable informant seems to increase with age. 
 ```{r}
+df5 <- df2 %>% 
+mutate(gender = recode(gender,
+                "0" = "Girls",
+                "1" = "Boys"))
 
-ggplot(df2, aes(exactage.x, total_trust)) +
+plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
   geom_point() +
+  facet_wrap(~gender) +
   gghighlight(total_trust > 1) +
   geom_smooth(method = "lm") +
   theme_bw() +
-  labs(title= "...",
-       subtitle = "...", 
+  labs(title= "Children's Age in Relation to Trust of the Reliable Informant",
+       subtitle = "Separated by Gender", 
        x = "Age in Months",
-       y = "Total Trust Score" )
+       y = "Total Trust Score") 
+
+plot5 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=15),
+           plot.subtitle = element_text(size=14),
+           strip.text.x = element_text(size = 12),
+           panel.spacing.x = unit(1.5, "cm"))
+
+
 
 ```
 
