@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ```{r load libraries }
- 
+
 library(tidyverse)
 library(janitor)
 library(rio)
@@ -52,11 +52,13 @@ Message: only 4-year-olds trust the reliable informant over the unreliable infor
 
 #mutate variables to factors and label, make average trust variable
 v1 <- data %>% 
-mutate(condition = as.factor(ifelse(condition == 1, "first-hand",
+mutate(condition = as.factor(ifelse(condition == 1, "first-hand",     
                                       "second-hand"))) %>%
   mutate(gender = as.factor(ifelse(gender == 1, "male", "female"))) %>%
   group_by(subid) %>%
   mutate(average_trust = mean(total_trust))
+
+#AAC: I really like your use of the ifelse command in the mutate while factoring- I never think to do this, but I think it's an awesome tool! Definitely going to use it in the future
 
 summary_p <- v1 %>%
   group_by(agegroup.x, condition) %>%
@@ -65,7 +67,7 @@ summary_p <- v1 %>%
             sd_average_trust = sd(total_trust),
             se_average_trust = sd_average_trust / (sqrt(n)))
 
-plot0 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+plot0 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust)) +
   geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
            alpha = .7) +
     labs(title= "Children's Selective Trust of Helpful over Tricky informant", 
@@ -76,11 +78,13 @@ plot0 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
                        group = condition),
                   width=.2,                    
                   position = position_dodge(width = 0.9)) +
-  theme_minimal()
+  theme_minimal() 
+#AAC: Because is aimed at the general community rather than the scientific community, I feel like error bars might not be the best fit for this audience (and I see you eliminated them in the below visualizations :D)
+plot0 
 
 #improve plot by changing colors, make text bigger 
 
-plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
+plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust)) +
   geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
            alpha = .6) +
   ylim(c(0,6)) +
@@ -95,12 +99,14 @@ plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
   theme_classic() +
   scale_fill_viridis_d(option = "cividis")
 
+
 plot1 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
            axis.title.y = element_text(size=14),
            axis.text.y= element_text(size=12),
            plot.title = element_text(size=16),
            plot.subtitle = element_text(size=14))
+#AAC: Love the improved colors. Because you used theme_classic instead of theme_minimal, and thus eliminated the gridlines in the background of this visualization, I think it might not be necessary to use alpha to make the bars transparent because there's nothing really to see behind them. And the color is probably nicer without the alpha
   
 
 
@@ -134,6 +140,7 @@ plot2 + theme(axis.title.x = element_text(size=14),
            axis.text.y= element_text(size=12),
            plot.title = element_text(size=16),
            plot.subtitle = element_text(size=14))
+#AAC: Yeah, I can see how the error bars and annotations might be too much together. Go with your gut :D 
 
 # going to try to take off error bars so it's easier to see means. I tried putting them above the error bars but it looks odd. Let me know if it's not a good idea. 
 
@@ -160,6 +167,8 @@ plot3 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=18),
            plot.subtitle = element_text(size=14))
 
+#AAC: I like the title and I think it's awesome for the general public! One thing you might consider is shortening the y axis title, capitalizing the "Condition" in the legend, and making it clear that the age groups are 3 and 4 years*. 
+
 # we hear so often that bar plots are so bad so here's an alternative that shows all the data. 
 v1 <- v1 %>% 
   mutate(condition = recode(condition,
@@ -184,7 +193,11 @@ plot3.1 +
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14),
            strip.text.x = element_text(size = 12),
-           legend.position = "none")
+           legend.position = "none") #I really like how you separated out your plot code from your theme edits like this. It made it really easy to understand!
+
+#AAC: I love this one! I always like looking at the raw data points more than summary statistics, and I really like jitter plots! Maybe you could add an annotation or a line on this plot marking the means for each group, which might help for comparisons? 
+#Also my go-to color is always the original viridis but that's just personal preference
+#I think the text is definitely big enough and I think that (minus perhaps the error bars) that this can be understood by a general audience. Awesome job! 
   
 
 #feedback requests:
@@ -220,6 +233,7 @@ ggplot(df3, aes(trainingtotal, total_trust)) +
   labs(title= "Children's Performance on Training Trials Related \nto Total Trust of Reliable Informant", 
        subtitle = "", 
        x = "Training Total", y = "Trust Score" )
+#AAC: Awesome use of jitter! 
 
 #color dots and regression line by age group 
 plot <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.x))) +
@@ -245,8 +259,13 @@ plot + theme(axis.title.x = element_text(size=14),
            axis.text.y= element_text(size=12),
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14))
+#Great use of annotations!
   
 #change colors, consider not using coord equal, find colors that are color blind safe and not ugly like the viridis ones 
+
+
+
+#AAC:Awesome! Great use of linear modeling, and I always like to see the underlying data points like you have. I also thought it was smart to not depiect the se in the linear model, because you are already displaying the data points and it might be too much going on. Are some of these points different sizes? That's a little bit confusing to me. I would also suggest changing the colors to one of the color blind palettes, just because these seem a little faint. Also, I'm curious why you set the size for this plot but not the previous plot. All super small comments, but overall I think the plot and audience are very appropriate! 
 
 ```
 
@@ -269,6 +288,7 @@ df4 <- data %>%
   mutate(agegroup.x = recode(agegroup.x,
                               "3" = "3-year-olds",
                               "4" = "4-year-olds")) 
+#AAC:Great use of spread and tidying
 
 #checking for outliers for each variable 
 
@@ -278,6 +298,8 @@ ggplot(df4, aes(child_EF, parent_EF_RS, group = agegroup.x)) +
   geom_boxplot()
 
 #my plan was to highlight outliers in the scatterplot, as you can see there are no outliers. may do something else! Suggestions to make it look fancier?
+
+#AAC: That would've been cool, bummer it didn't work out ): but also good that the data has no outliers :D 
 
 plot4 <- ggplot(df4, aes(child_EF, parent_EF_RS)) +
   geom_point(size = 1.5, color = "gray40") +
@@ -297,7 +319,7 @@ plot4 + theme(axis.title.x = element_text(size=14),
            plot.subtitle = element_text(size=14),
            strip.text.x = element_text(size = 12))
 
-
+#AAC: I really like the look of this faceted plot. Simple, but effective. My only question is that you said that "parents of 4-year-olds more accurately report on their 4-year-olds executive function (EF) performance. Parent reports of 3-year-olds EF seem to overestimate their performance", but despite this pattern, the linear models look kind of similar, despite having somewhat different intercepts, and seem to have similar slopes. I can see the relationship that you are talking about by looking at the scatterplot of points. Perhaps you could display this relationship as the average dfference between parent-reported scores and actual reported scores for the two age groups? Or highlight the specific details of the plot that display the relationship that you're talking about (also it could be that I just don't understand enough about stats :D )
 ```
 
 viz 4: aimed at scientific community 
@@ -314,7 +336,7 @@ plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
   facet_wrap(~gender) +
   gghighlight(total_trust > 1) +
   geom_smooth(method = "lm") +
-  theme_bw() +
+  theme_bw() + #I like your experimentation with different themes
   labs(title= "Children's Age in Relation to Trust of the Reliable Informant",
        subtitle = "Separated by Gender", 
        x = "Age in Months",
@@ -327,9 +349,12 @@ plot5 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14),
            strip.text.x = element_text(size = 12),
-           panel.spacing.x = unit(1.5, "cm"))
+           panel.spacing.x = unit(1.5, "cm")) # I love this panel spacing. I didn't know you could do that, and I think it looks great!
+
+#AAC: Again, I really like the look of these faceted linear model plots! I'm a little confused why you highlighted the scores specifically above 1, but it may just be my unfamiliarity with your data. Making that more clear woluld help me better interpret the plot.
 
 
+# Great job overall on all your plots, Karlena! You even included a bonus one- I think you're in an awesome spot!
 
 ```
 
