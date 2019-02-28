@@ -159,6 +159,34 @@ plot3 + theme(axis.title.x = element_text(size=14),
            axis.text.y= element_text(size=12),
            plot.title = element_text(size=18),
            plot.subtitle = element_text(size=14))
+
+# we hear so often that bar plots are so bad so here's an alternative that shows all the data. 
+v1 <- v1 %>% 
+  mutate(condition = recode(condition,
+                "first-hand" = "First-hand",
+                "second-hand" = "Second-hand"))
+
+plot3.1 <- ggplot(v1, aes(as.factor(agegroup.x), total_trust, color = (as.factor(agegroup.x)))) +
+  geom_point(alpha = 0.9, position = position_jitter(height = .2, width = .2)) +
+  facet_wrap(~condition) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Accent") +
+    labs(title= "Only 4-year-olds trust the more reliable informant!", 
+       subtitle = "Children's trust scores in a sticker-finding game", 
+       x = "Age Group",
+       y = "Trust Score of Reliable Informant")
+
+plot3.1 +
+  theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=15),
+           plot.subtitle = element_text(size=14),
+           strip.text.x = element_text(size = 12),
+           legend.position = "none")
+  
+
 #feedback requests:
 
 # I would love feedback on the colors. I am trying to find some that are colorblind friendly but I think they all look ugly.
@@ -166,6 +194,8 @@ plot3 + theme(axis.title.x = element_text(size=14),
 # Daniel suggested adding annotaions, does it help to have the means there? It's look awkward to me because of the error bars, but seems odd to take them off. 
 
 # Is text big enough? Would this be understood by a general audience?
+
+#let me know thoughts on plot 3.1
 
 ```
 
@@ -280,7 +310,7 @@ mutate(gender = recode(gender,
                 "1" = "Boys"))
 
 plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
-  geom_point() +
+  geom_point(alpha = 0.6) +
   facet_wrap(~gender) +
   gghighlight(total_trust > 1) +
   geom_smooth(method = "lm") +
