@@ -19,10 +19,12 @@ library(here)
 library(knitr)
 library(stats)
 library(gghighlight)
-#devtools::install_github("yixuan/showtext")
 library(showtext)
 library(ggthemes)
 library(grid)
+library(gganimate)
+library(ungeviz)
+library(gifski)
 
 ```
 
@@ -331,6 +333,7 @@ mutate(gender = recode(gender,
                 "0" = "Girls",
                 "1" = "Boys"))
 
+
 plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
   geom_point(alpha = 0.6) +
   facet_wrap(~gender) +
@@ -349,13 +352,35 @@ plot5 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14),
            strip.text.x = element_text(size = 12),
-           panel.spacing.x = unit(1.5, "cm")) # I love this panel spacing. I didn't know you could do that, and I think it looks great!
+           panel.spacing.x = unit(1.5, "cm"))
+
+#decided not to highlight after all- going to try hops
+bsr <- bootstrapper(20, gender)
+
+plot6 <- ggplot(df5, aes(exactage.x, total_trust)) +
+  geom_point(alpha = 0.6) +
+    geom_point(data = bsr) +
+  facet_wrap(~gender) +
+   geom_smooth(data = bsr, method = "lm", fullrange = TRUE, se = FALSE) +
+  theme_bw() + 
+  labs(title= "Children's Age in Relation to Trust of the Reliable Informant",
+       subtitle = "Separated by Gender", 
+       x = "Age in Months",
+       y = "Total Trust Score") +
+  transition_states(.draw, 1, 1) + 
+  enter_fade() + exit_fade()
+
+plot6 + theme(axis.title.x = element_text(size=14),
+           axis.text.x= element_text(size=12),
+           axis.title.y = element_text(size=14),
+           axis.text.y= element_text(size=12),
+           plot.title = element_text(size=15),
+           plot.subtitle = element_text(size=14),
+           strip.text.x = element_text(size = 12),
+           panel.spacing.x = unit(1.5, "cm"))
+
 
 #AAC: Again, I really like the look of these faceted linear model plots! I'm a little confused why you highlighted the scores specifically above 1, but it may just be my unfamiliarity with your data. Making that more clear woluld help me better interpret the plot.
-
-
-# Great job overall on all your plots, Karlena! You even included a bonus one- I think you're in an awesome spot!
-
 ```
 
 
