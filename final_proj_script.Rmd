@@ -62,12 +62,14 @@ mutate(condition = as.factor(ifelse(condition == 1, "first-hand",
 
 #AAC: I really like your use of the ifelse command in the mutate while factoring- I never think to do this, but I think it's an awesome tool! Definitely going to use it in the future
 
+#AF: I second Alexis' comment regarding the ifelse command.
+
 summary_p <- v1 %>%
   group_by(agegroup.x, condition) %>%
   summarise(n = n(),
             average_trust = mean(total_trust),
             sd_average_trust = sd(total_trust),
-            se_average_trust = sd_average_trust / (sqrt(n)))
+            se_average_trust = sd_average_trust / (sqrt(n))) #Nice clean code!
 
 plot0 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust)) +
   geom_bar(aes(fill = condition), stat = "identity", position = "dodge",
@@ -99,7 +101,7 @@ plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust)) +
                   width=.2,                    
                   position = position_dodge(width = 0.9)) +
   theme_classic() +
-  scale_fill_viridis_d(option = "cividis")
+  scale_fill_viridis_d(option = "cividis") #I personally find the Okabe Ito colors more appealing, but this is another great option!
 
 
 plot1 + theme(axis.title.x = element_text(size=14),
@@ -110,7 +112,7 @@ plot1 + theme(axis.title.x = element_text(size=14),
            plot.subtitle = element_text(size=14))
 #AAC: Love the improved colors. Because you used theme_classic instead of theme_minimal, and thus eliminated the gridlines in the background of this visualization, I think it might not be necessary to use alpha to make the bars transparent because there's nothing really to see behind them. And the color is probably nicer without the alpha
   
-
+#AF: Since your plot is so clear in visualizing the separate conditions/age groups, I do not the subtitle is necessary. What are you thoughts? Also, is there statistical significance for the difference in four year-olds?
 
 #add annotations for group averages, make the title for the general public
 
@@ -169,7 +171,9 @@ plot3 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=18),
            plot.subtitle = element_text(size=14))
 
-#AAC: I like the title and I think it's awesome for the general public! One thing you might consider is shortening the y axis title, capitalizing the "Condition" in the legend, and making it clear that the age groups are 3 and 4 years*. 
+#AAC: I like the title and I think it's awesome for the general public! One thing you might consider is shortening the y axis title, capitalizing the "Condition" in the legend, and making it clear that the age groups are 3 and 4 years*.
+
+#AF: This is the cleanest version yet, great job! I like the removal of the error bars and addition of trust scores to tailor your plot to a general audience.
 
 # we hear so often that bar plots are so bad so here's an alternative that shows all the data. 
 v1 <- v1 %>% 
@@ -206,9 +210,15 @@ plot3.1 +
 
 # I would love feedback on the colors. I am trying to find some that are colorblind friendly but I think they all look ugly.
 
-# Daniel suggested adding annotaions, does it help to have the means there? It's look awkward to me because of the error bars, but seems odd to take them off. 
+#AF: Okabe Ito is another good option, though we have used that quite a bit in class
+
+# Daniel suggested adding annotaions, does it help to have the means there? It's look awkward to me because of the error bars, but seems odd to take them off.
+  
+#AF: I like the means there, but they are not essential to understand your plot
 
 # Is text big enough? Would this be understood by a general audience?
+
+#AF: Yes and yes!
 
 #let me know thoughts on plot 3.1
 
@@ -269,6 +279,8 @@ plot + theme(axis.title.x = element_text(size=14),
 
 #AAC:Awesome! Great use of linear modeling, and I always like to see the underlying data points like you have. I also thought it was smart to not depiect the se in the linear model, because you are already displaying the data points and it might be too much going on. Are some of these points different sizes? That's a little bit confusing to me. I would also suggest changing the colors to one of the color blind palettes, just because these seem a little faint. Also, I'm curious why you set the size for this plot but not the previous plot. All super small comments, but overall I think the plot and audience are very appropriate! 
 
+#AF: I agree with changing the colors. Overall, the regression lines are clear and convey an important difference in the relationship between trust score and performance across training trials for the two age groups. As the other reviewers mentioned, the difference in the data point sizes is a little confusing, only in that I am curious as to their specific significance. However, this is an easily adjusted component, so not to worry.
+
 ```
 
 Viz 3 - aimed at scientific community
@@ -304,7 +316,7 @@ ggplot(df4, aes(child_EF, parent_EF_RS, group = agegroup.x)) +
 #AAC: That would've been cool, bummer it didn't work out ): but also good that the data has no outliers :D 
 
 plot4 <- ggplot(df4, aes(child_EF, parent_EF_RS)) +
-  geom_point(size = 1.5, color = "gray40") +
+  geom_point(size = 1.5, color = "gray40") + #AF: This helped make the plot simple and clear
   geom_smooth(method = "lm") +
   facet_wrap(~agegroup.x) +
   theme_bw() + 
@@ -322,6 +334,8 @@ plot4 + theme(axis.title.x = element_text(size=14),
            strip.text.x = element_text(size = 12))
 
 #AAC: I really like the look of this faceted plot. Simple, but effective. My only question is that you said that "parents of 4-year-olds more accurately report on their 4-year-olds executive function (EF) performance. Parent reports of 3-year-olds EF seem to overestimate their performance", but despite this pattern, the linear models look kind of similar, despite having somewhat different intercepts, and seem to have similar slopes. I can see the relationship that you are talking about by looking at the scatterplot of points. Perhaps you could display this relationship as the average dfference between parent-reported scores and actual reported scores for the two age groups? Or highlight the specific details of the plot that display the relationship that you're talking about (also it could be that I just don't understand enough about stats :D )
+
+#AF: Second the faceted comment! Since the fitted regression lines are similar, this could lead to some visual confusion if they were overlaid. Also, leading up the plot, I'm glad that you included boxplots to check for outliers. The plot is otherwise easily understood and visually appealing. Overall, I thought your use of multiple plot iterations was very effective. I think that each version was a step in the right direction! Additionally, you had visually appealing and minimalistic plots, which were exemplified by clear and efficient code
 ```
 
 viz 4: aimed at scientific community 
@@ -329,7 +343,7 @@ viz 4: aimed at scientific community
 message: children's ability to trust a reliable informant over an unreliable informant seems to increase with age. 
 ```{r}
 df5 <- df2 %>% 
-mutate(gender = recode(gender,
+mutate(gender = recode(gender, #AF: I totally forgot how to to this, so thank you for having this in your code for me! 
                 "0" = "Girls",
                 "1" = "Boys"))
 
@@ -381,6 +395,8 @@ plot6 + theme(axis.title.x = element_text(size=14),
 
 
 #AAC: Again, I really like the look of these faceted linear model plots! I'm a little confused why you highlighted the scores specifically above 1, but it may just be my unfamiliarity with your data. Making that more clear woluld help me better interpret the plot.
+
+#AF: I could not get the "bootstrapper" function to work in my R, so unfortunately I could not see your visualization. Sorry :(
 ```
 
 
