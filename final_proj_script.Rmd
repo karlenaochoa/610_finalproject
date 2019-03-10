@@ -40,13 +40,11 @@ df2 <- import(here("data", "data_trust_final_proj.csv"),
 
 # turn 999 into nas
 
-#join data and select variables of interest and clean names 
+#join data and select variables of interest 
 
 data <- left_join(df2, df, by = "subid") %>% 
-  select(1, 4:7, 12:23, 25:28, 33:44, 56:73, 81:143) %>% 
-  clean_names()
+  select(1, 4:7, 12:23, 25:28, 33:44, 56:73, 81:143)
   
-          
 ```
 
 
@@ -54,7 +52,6 @@ Viz 1: Aimed at general community!
 
 Message: only 4-year-olds trust the reliable informant over the unreliable informant, even when 3-year-olds receive first-hand information they are equally choosing the reliable (helpful) and unreliable informant (tricky) in a sticker-finding task. 
 ```{r viz 1}
-
 #mutate variables to factors and label, make average trust variable
 v1 <- data %>% 
 mutate(condition = as.factor(ifelse(condition == 1, "first-hand",     
@@ -62,8 +59,6 @@ mutate(condition = as.factor(ifelse(condition == 1, "first-hand",
   mutate(gender = as.factor(ifelse(gender == 1, "male", "female"))) %>%
   group_by(subid) %>%
   mutate(average_trust = mean(total_trust))
-
-#AAC: I really like your use of the ifelse command in the mutate while factoring- I never think to do this, but I think it's an awesome tool! Definitely going to use it in the future
 
 summary_p <- v1 %>%
   group_by(agegroup.x, condition) %>%
@@ -84,8 +79,11 @@ plot1 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust)) +
                   width=.2,                    
                   position = position_dodge(width = 0.9)) +
   theme_minimal() 
+
+plot1
+
 #AAC: Because is aimed at the general community rather than the scientific community, I feel like error bars might not be the best fit for this audience (and I see you eliminated them in the below visualizations :D)
-plot1 
+
 
 #improve plot by changing colors, make text bigger 
 
@@ -112,8 +110,6 @@ plot2 + theme(axis.title.x = element_text(size=14),
            plot.title = element_text(size=16),
            plot.subtitle = element_text(size=14))
 #AAC: Love the improved colors. Because you used theme_classic instead of theme_minimal, and thus eliminated the gridlines in the background of this visualization, I think it might not be necessary to use alpha to make the bars transparent because there's nothing really to see behind them. And the color is probably nicer without the alpha
-  
-
 
 #add annotations for group averages, make the title for the general public
 
@@ -164,7 +160,6 @@ plot4 <- ggplot(summary_p, aes(as.factor(agegroup.x), average_trust )) +
   annotate("text", label = "3.96", x = 2.2, y = 4.1, size = 6) +
   theme_classic() +
   scale_fill_viridis_d(option = "cividis")
-
 
 plot4 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
@@ -253,7 +248,7 @@ ggplot(df3, aes(trainingtotal, total_trust)) +
   geom_point()
 
 #theme minimal added jitter for overlapping points 
-ggplot(df3, aes(trainingtotal, total_trust)) +
+plot6 <- ggplot(df3, aes(trainingtotal, total_trust)) +
   geom_point(position = "jitter") +
   geom_smooth(method = "lm", fullrange = TRUE) +
   theme_minimal() +
@@ -263,14 +258,15 @@ ggplot(df3, aes(trainingtotal, total_trust)) +
 #AAC: Awesome use of jitter! 
 
 #color dots and regression line by age group 
-plot <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.x))) +
-  geom_point(size = 2) +
+finalviz2 <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.x))) +
+  geom_point() +
   geom_jitter(position = position_jitter(height = .6, width = 0)) +
   geom_smooth(method = "lm", fullrange = TRUE, se = FALSE) +
-  scale_color_brewer(palette = "Accent",
+  scale_fill_brewer(palette = "Accent",
                      name = "Age Group",
                      breaks = c("3", "4"),
                      labels = c("3-year-olds", "4-year-olds")) +
+  scale_color_OkabeIto() +
   theme_minimal() +
   labs(title= "Children's Performance on Training Trials Related to Total \nTrust of Reliable Informant", 
        subtitle = "Relationship separated by age", 
@@ -280,12 +276,14 @@ plot <- ggplot(df3, aes(trainingtotal, total_trust, colour = as.factor(agegroup.
   annotate("text", label = "4-year-olds", x = 2.8, y = 5.1, size = 4.5) +
   guides(color = "none")
 
-plot + theme(axis.title.x = element_text(size=14),
+
+finalviz2 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
            axis.title.y = element_text(size=14),
            axis.text.y= element_text(size=12),
            plot.title = element_text(size=15),
            plot.subtitle = element_text(size=14))
+
 #Great use of annotations!
   
 #change colors, consider not using coord equal, find colors that are color blind safe and not ugly like the viridis ones 
@@ -328,17 +326,17 @@ ggplot(df4, aes(child_EF, parent_EF_RS, group = agegroup.x)) +
 
 #AAC: That would've been cool, bummer it didn't work out ): but also good that the data has no outliers :D 
 
-plot4 <- ggplot(df4, aes(child_EF, parent_EF_RS)) +
+finalviz3 <- ggplot(df4, aes(child_EF, parent_EF_RS)) +
   geom_point(size = 1.5, color = "gray40") +
   geom_smooth(method = "lm") +
   facet_wrap(~agegroup.x) +
   theme_bw() + 
-  labs(title= "Children's Executive Function Score in Relation to Parent Report \nof Executive Function",
+  labs(title= "Children's Executive Function Score in Relation to Parent Report of Executive Function",
        subtitle = "Relationship separated by age", 
        x = "Children's Executive Function Score",
        y = "Parent-Report of Executive Function" )
 
-plot4 + theme(axis.title.x = element_text(size=14),
+finalviz3 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
            axis.title.y = element_text(size=14),
            axis.text.y= element_text(size=12),
@@ -359,10 +357,9 @@ mutate(gender = recode(gender,
                 "1" = "Boys"))
 
 
-plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
+plot7 <- ggplot(df5, aes(exactage.x, total_trust)) +
   geom_point(alpha = 0.6) +
   facet_wrap(~gender) +
-  gghighlight(total_trust > 1) +
   geom_smooth(method = "lm") +
   theme_bw() + #I like your experimentation with different themes
   labs(title= "Children's Age in Relation to Trust of the Reliable Informant",
@@ -370,7 +367,7 @@ plot5 <- ggplot(df5, aes(exactage.x, total_trust)) +
        x = "Age in Months",
        y = "Total Trust Score") 
 
-plot5 + theme(axis.title.x = element_text(size=14),
+plot7 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
            axis.title.y = element_text(size=14),
            axis.text.y= element_text(size=12),
@@ -382,7 +379,7 @@ plot5 + theme(axis.title.x = element_text(size=14),
 #decided not to highlight after all- going to try hops
 bsr <- bootstrapper(20, gender)
 
-plot6 <- ggplot(df5, aes(exactage.x, total_trust)) +
+finalviz4 <- ggplot(df5, aes(exactage.x, total_trust)) +
   geom_point(alpha = 0.6) +
     geom_point(data = bsr) +
   facet_wrap(~gender) +
@@ -395,7 +392,7 @@ plot6 <- ggplot(df5, aes(exactage.x, total_trust)) +
   transition_states(.draw, 1, 1) + 
   enter_fade() + exit_fade()
 
-plot6 + theme(axis.title.x = element_text(size=14),
+finalviz4 + theme(axis.title.x = element_text(size=14),
            axis.text.x= element_text(size=12),
            axis.title.y = element_text(size=14),
            axis.text.y= element_text(size=12),
@@ -404,6 +401,23 @@ plot6 + theme(axis.title.x = element_text(size=14),
            strip.text.x = element_text(size = 12),
            panel.spacing.x = unit(1.5, "cm"))
 
+#trying to figure out HOPS
+ggplot(df5, aes(exactage.x, total_trust)) +
+  geom_point(alpha = 0.6) +
+  facet_wrap(~gender) +
+  stat_smooth(data = bsr,
+              geom = "line",
+              color = "#4375D3",
+              fullrange = TRUE) +
+  transition_states(bsr,
+                    transition_length = 0.5,
+                    state_length = 0.5) +
+  theme_bw() + 
+  labs(title= "Children's Age in Relation to Trust of the Reliable Informant",
+       subtitle = "Separated by Gender", 
+       x = "Age in Months",
+       y = "Total Trust Score")
+ 
 
 #AAC: Again, I really like the look of these faceted linear model plots! I'm a little confused why you highlighted the scores specifically above 1, but it may just be my unfamiliarity with your data. Making that more clear woluld help me better interpret the plot.
 ```
